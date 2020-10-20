@@ -1,0 +1,10 @@
+128x128 for icon
+cover art: 1920x960 (1600x960)
+
+Description: InstantWebsite lets you create websites faster than ever.
+
+Tags: 
+
+Support Contact: support@instantwebsite.app
+
+https://www.figma.com/community/plugin/887658623177502392

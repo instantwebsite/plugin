@@ -1,0 +1,821 @@
+<script>
+// Marking with ENV_TO_REPLACE to allow releases to change env to use
+const current_env = "production" // ENV_TO_REPLACE
+
+let log = console.log
+
+// @ts-ignore
+if (current_env === "production") {
+  log = () => {}
+}
+
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/thomas-lowry/figma-plugin-ds/dist/figma-plugin-ds.css">
+<style>
+  #website-link {
+    font-size: 14px;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #response {
+    margin-top: 5px;
+  }
+  progress[value] {
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
+    margin-left: -10px;
+    -webkit-appearance: none; 
+    height: 2px;
+  }
+  @-webkit-keyframes animate-stripes {
+   100% { background-position: -100px 0px; }
+  }
+  progress[value]::-webkit-progress-bar {
+    background-color: white;
+  }
+  progress[value]::-webkit-progress-value {
+    background-color: #86C6EA;
+    transition: width 0.2s;
+    /* -webkit-animation: animate-stripes 5s linear infinite; */
+  }
+  #cover {
+    position: absolute;
+    background-color: rgba(0,0,0,0.2);
+    backdrop-filter: blur(2px);
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    z-index: 100000000000;
+    text-align: center;
+  }
+
+  #cover-content {
+    margin: 60px auto;
+    width: 200px;
+    color: white;
+    background-color: rgba(0,0,0,0.5);
+    padding: 5px;
+    border-radius: 5px;
+  }
+
+  #footer {
+    /* background-color: red; */
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  #creating-notice {
+    text-align: right;
+    width: 106px;
+    font-size: 9px;
+  }
+
+  #toggle-menu {
+    font-size: 11px;
+    position: absolute;
+    top: 4px;
+    right: 0px;
+  }
+
+  #toggle-menu a {
+    text-decoration: none;
+  }
+
+  #toggle-menu a:hover {
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  #toggle-menu-icon {
+    transition: all 0.2s ease;
+    cursor: pointer;
+    opacity: 0.8;
+  }
+
+  #toggle-menu-icon:hover {
+    opacity: 1;
+  }
+
+  #menu-list {
+    position: absolute;
+    font-size: 11px;
+    background-color: white;
+    text-align: right;
+    margin-left: -20px;
+    padding: 7px;
+    z-index: 1000;
+    width: 0px;
+    box-shadow: #000 1px 1px 1px;
+    transition: all 0.2s ease;
+    text-overflow: clip;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  #menu-list a {
+    display: block;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    color: #18A0FB;
+    text-decoration: none;
+  }
+
+  #menu-list a:hover {
+    text-decoration: underline;
+    color: #0a4c77;
+  }
+
+  #api-key {
+    margin-right: 5px;
+  }
+
+  #api-key-input {
+    display: flex;
+  }
+</style>
+<div id="cover">
+  <div id="cover-content">
+    Please select a top level
+    frame to activate
+  </div>
+</div>
+<div id="toggle-menu">
+  <div id="toggle-menu-icon" class="icon icon--adjust" style="background-position: 50% 50%; position: absolute; right: 7px;"></div>
+</a>
+</div>
+<div id="menu-list">
+    <a target="_blank" href="https://dashboard.instantwebsite.app/profile">Get API Key</a>
+    <!-- Only show Visit Dashboard for users with API key -->
+    <a target="_blank" href="https://dashboard.instantwebsite.app">Your Dashboard</a>
+    <a id="unlink"
+       target="_blank"
+       title="This disconnects the current Figma Page from the website already stored in InstantWebsite.app. This means that next time you upload the page, a new website will be created instead of updating the current one you have linked."
+       href="#">Unlink Figma Page</a>
+    <br/>
+  <strong>
+    <a href="https://instantwebsite.app" target="_blank">https://instantwebsite.app</a>
+  </strong>
+</div>
+<div style="padding: 10px; padding-top: 0px;">
+  <label class="section-title" for="api-key">Authentication</label>
+  <div class="switch" title="You only need an API key to associate created websites with your Instant Website account. If you don't have any account, you can skip this. It's not required to create website.">
+    <input class="switch__toggle" type="checkbox" id="checkAuthenticated">
+    <label class="switch__label" for="checkAuthenticated">Use API Key</label>
+  </div>
+  <div class="input" id="api-key-input">
+    <input type="input" id="api-key" class="input__field" placeholder="Enter API Key here (32 characters)">
+    <button id="test-api-key" class="button button--secondary">
+      Test
+    </button>
+  </div>
+  <label class="section-title" id="username"></label>
+  <!--
+  <label class="section-title" for="api-key">Settings</label>
+  <div class="switch" title="Only available if you're logged in!">
+    <input class="switch__toggle" type="checkbox" id="uniqueIdA" disabled>
+    <label class="switch__label" for="uniqueIdA">Permanent Website</label>
+  </div>
+  -->
+  <!-- <div class="switch" title="Only available if you're logged in!">
+    <input class="switch__toggle" type="checkbox" id="uniqueIdB" disabled>
+    <label class="switch__label" for="uniqueIdB">Make Responsive</label>
+  </div> -->
+  <!--
+  <div class="switch" title="Only available if you're logged in!">
+    <input class="switch__toggle" type="checkbox" id="uniqueIdC" disabled>
+    <label class="switch__label" for="uniqueIdC">Password Protect</label>
+  </div>
+  -->
+  <!-- <div class="switch" title="Only available if you're logged in!">
+    <input class="switch__toggle" type="checkbox" id="uniqueIdD" disabled checked="checked">
+    <label class="switch__label" for="uniqueIdD">Link Source Figma Document</label>
+  </div> -->
+  <!-- <div class="switch" title="Only available if you're logged in!">
+    <input class="switch__toggle" type="checkbox" id="hideInstantWebsiteAd" disabled checked="checked">
+    <label class="switch__label" for="hideInstantWebsiteAd">Hide InstantWebsite.app footer</label>
+  </div> -->
+  <!-- <div class="switch">
+    <input class="switch__toggle" type="checkbox" id="uniqueIdE">
+    <label class="switch__label" for="uniqueIdE">Open Website When Created</label>
+  </div> -->
+  <div id="footer">
+    <div style="width: 100%; display: flex; justify-content: space-between;">
+      <button id="create" class="button button--primary">
+        Create website
+      </button>
+      <a id="visit"
+         style="display: none"
+         class="button button--secondary"
+         href="https://instantwebsite.app"
+         target="_blank"
+         title="https://instantwebsite.app">
+        Visit website
+      </a>
+      <div id="creating-notice" class="section-title" for="api-key" style="padding: 0; display: none;">
+        <span id='notice-resource'>Creating website</span>
+        <span class="icon icon--spinner icon--spin" style="background-position: 50% 50%; position: absolute; right: 7px;"></span>
+      </div>
+    </div>
+  </div>
+  <!-- <div id="progress-2">0/0</div> -->
+  <progress id="progress" max=100 value=0></progress>
+
+  <div id="response"></div>
+</div>
+<script>
+const $progress2 = document.getElementById('progress-2')
+const $creatingNotice = document.getElementById('creating-notice')
+const $noticeResource = document.getElementById('notice-resource')
+const $response = document.getElementById('response')
+const $cover = document.getElementById('cover')
+const $create = document.getElementById('create')
+const $progress = document.getElementById('progress')
+const $api_key = document.getElementById('api-key')
+const $api_key_input = document.getElementById('api-key-input')
+const $checkAuthenticated = document.getElementById('checkAuthenticated')
+const $visit = document.getElementById('visit')
+const $testApiKey = document.getElementById('test-api-key')
+const $toggleMenu = document.getElementById('toggle-menu')
+const $toggleMenuIcon = document.getElementById('toggle-menu-icon')
+const $menuList = document.getElementById('menu-list')
+const $unlink = document.getElementById('unlink')
+
+var isMenuOpen = false
+
+const toggleMenu = () => {
+  if (isMenuOpen) {
+    isMenuOpen = false
+    $menuList.style.width = "0px"
+    $menuList.style.marginLeft = "-20px"
+    $toggleMenuIcon.style.transform = "rotate(0deg)"
+  } else {
+    isMenuOpen = true
+    $menuList.style.width = "200px"
+    $menuList.style.marginLeft = "0px"
+    $toggleMenuIcon.style.transform = "rotate(180deg)"
+  }
+}
+
+$toggleMenu.addEventListener('click', (e) => {
+  e.preventDefault()
+  toggleMenu()
+})
+
+const domains = {
+  dev: "http://localhost:8080/plugin-api",
+  production: "https://plugin-api.instantwebsite.app"
+}
+
+const preview_domains = {
+  dev: "http://localhost:8888",
+  production: "https://websites.instantwebsite.app"
+}
+
+const api_domain = domains[current_env]
+const preview_domain = preview_domains[current_env]
+
+let messageReplyHandlers = {}
+const progress = {total: 0, current: 0}
+
+function resetProgress() {
+  log('[progress] reset')
+  progress.total = 0
+  progress.current = 0
+}
+
+function updateProgress() {
+  // if (progress.current > progress.total) {
+  //   progress.total = progress.current
+  // }
+  setTimeout(() => {
+      const percentage = (progress.current / progress.total) * 100
+      log('[progress] updating', percentage)
+      // $progress2.innerText = `${progress.current}/${progress.total} ${percentage}`
+      $progress.value = percentage
+  }, 10)
+}
+
+const addProgressTotal = () => {
+  progress.total = progress.total + 1
+  log('[progress] add total', progress.total)
+  updateProgress()
+}
+
+const addProgressCurrent = () => {
+  progress.current = progress.current + 1
+  log('[progress] add current', progress.current)
+  updateProgress()
+}
+
+const postAndWaitForReply = async (msg_type, content) => {
+  const id = (Math.floor(Math.random() * 100) + 1).toString()
+  log(`[ui:postAndWaitForReply:${id}:${msg_type}] init`)
+  addProgressTotal()
+  return new Promise((resolve) => {
+    messageReplyHandlers[id] = (msg) => {
+      log(`[ui:postAndWaitForReply:${id}:${msg_type}] handler called`)
+      addProgressCurrent()
+      resolve(msg)
+      delete messageReplyHandlers[id]
+    }
+    parent.postMessage({
+        pluginMessage: Object.assign({},{
+          type: msg_type,
+          id: id
+        }, content)
+    }, '*')
+    log(`[ui:postAndWaitForReply:${id}:${msg_type}] posted message`)
+  })
+}
+
+$api_key.addEventListener('keyup', (ev) => {
+  const val = ev.target.value.trim()
+  parent.postMessage({
+    pluginMessage: {
+      type: 'set-parameter',
+      key: 'api_key',
+      value: val
+    }
+  }, '*')
+})
+
+const shouldUseApiKey = () => {
+  return $checkAuthenticated.checked
+}
+
+$checkAuthenticated.addEventListener('change', (ev) => {
+  const val = ev.target.checked
+  if (val) {
+    $api_key_input.style.display = 'flex'
+  } else {
+    $api_key_input.style.display = 'none'
+  }
+  parent.postMessage({
+    pluginMessage: {
+      type: 'set-parameter',
+      key: 'check_authenticated',
+      value: val
+    }
+  }, '*')
+})
+
+function creatingStart() {
+  $visit.style.display = 'none'
+  $response.style.display = "none"
+  $creatingNotice.style.display = "flex"
+  $create.disabled = true
+  $progress.value = 0
+  resetProgress()
+}
+
+function creatingEnd() {
+  $creatingNotice.style.display = "none"
+  $response.style.display = "block"
+  $create.disabled = false
+  $progress.value = 100
+  $visit.style.display = 'flex'
+}
+
+function frameSelected() {
+  $create.disabled = false
+  $cover.style.display = 'none'
+}
+
+function frameNotSelected() {
+  $create.disabled = true
+  $cover.style.display = 'block'
+}
+
+function setVisitURL(url) {
+  $visit.setAttribute('href', url)
+  $visit.setAttribute('title', url)
+}
+
+async function updateWebsiteID() {
+  const res = await postAndWaitForReply('load-parameter', {key: 'website_id'})
+  const website_id = res.value
+  log('updateWebsiteID', res, website_id)
+
+  if (website_id) {
+    $create.innerText = 'Update website'
+    const url = `${preview_domain}/${website_id}`
+    log('updateWebsiteID', url)
+    setVisitURL(url)
+    $visit.style.display = 'flex'
+  } else {
+    $visit.style.display = 'none'
+    $create.innerText = 'Create website'
+  }
+}
+
+async function init() {
+  log('[init]')
+  frameNotSelected()
+  const res = await postAndWaitForReply('load-parameter', {key: "api_key"})
+  const api_key = res.value
+  $api_key.value = api_key
+  log('[init] api key', api_key)
+
+  const res2 = await postAndWaitForReply('load-parameter', {key: 'check_authenticated'})
+  const checkAuthenticated = res2.value
+  log('[init] check authenticated', checkAuthenticated)
+  
+  if (checkAuthenticated) {
+    $api_key_input.style.display = 'flex'
+  } else {
+    $api_key_input.style.display = 'none'
+  }
+
+  updateWebsiteID()
+
+  $checkAuthenticated.checked = checkAuthenticated
+
+  if (current_env === 'dev') {
+    console.log('Im in dev, change colors yo')
+    $toggleMenuIcon.style.backgroundColor = 'yellow'
+  }
+
+}
+
+init()
+
+$create.addEventListener('click', (ev) => {
+  ev.preventDefault()
+  creatingStart()
+  // Make sure we stay in "creating" state for at least some time
+  // Otherwise it's too fast. Yeah
+  setTimeout(() => {
+    parent.postMessage({pluginMessage: {type: 'create'}}, '*')
+  }, 240)
+})
+
+$unlink.addEventListener('click', async (ev) => {
+  ev.preventDefault()
+  parent.postMessage({
+    pluginMessage: {
+      type: 'set-parameter',
+      key: 'website_id',
+      value: null
+    }
+  }, '*')
+  toggleMenu()
+  $create.innerText = 'Create website'
+  $visit.style.display = 'none'
+})
+
+$testApiKey.addEventListener('click', async () => {
+  try {
+    const res = await call(api_domain + "/me", {method: "GET"}, "json")
+    if (res.isError) {
+      $testApiKey.style.backgroundColor = '#F24822'
+      document.getElementById('username').innerText = "Invalid API Key "
+    } else {
+      $testApiKey.style.backgroundColor = '#1BC47D'
+      document.getElementById('username').innerText = res['user/email']
+    }
+  } catch (err) {
+    log(err)
+    $testApiKey.style.backgroundColor = '#F24822'
+  }
+})
+
+$api_key_input.addEventListener('keyup', () => {
+  $testApiKey.style.backgroundColor = '#FFF'
+})
+
+const default_api_key = 'f5b0b95c94ebf21af75cdf35af4a31853'
+
+async function call(url, opts, decode) {
+  log($api_key.value || default_api_key)
+  api_key_to_use = shouldUseApiKey() ? $api_key.value : default_api_key
+  let defaultHeaders = {"Authorization": "Token " + api_key_to_use}
+  if (opts.headers) {
+    opts.headers = Object.assign({}, opts.headers, defaultHeaders)
+  }
+  let res = null
+  try {
+    res = await fetch(url, Object.assign({}, {
+      headers: defaultHeaders,
+    }, opts))
+  } catch (error) {
+    return {isError: true, error, res}
+  }
+  if (!res.ok && res.status === 403) {
+    parent.postMessage({pluginMessage: {
+      type: 'notify',
+      message: 'Your API Key is not valid. Please enter it again!'
+    }}, '*')
+    log(res)
+    resetAll()
+    return {isError: true, res}
+  } else {
+    if (!res.ok) {
+      return {
+        isError: true,
+        res
+      }
+    } else {
+      const decoded_res = await res[decode]()
+      return decoded_res
+    }
+  }
+}
+
+const resetAll = () => {
+  resetProgress()
+  creatingEnd()
+  messageReplyHandlers = {}
+}
+
+window.onerror = function(message, source, lineno, colno, error) {
+  log('GOT ERROR SOMEWHERE!')
+  log(message)
+  log(error)
+}
+
+window.onmessage = async (event) => {
+  log(`[ui:onmessage:${event.data.pluginMessage.type}]`)
+  try {
+  const msg = event.data.pluginMessage
+  const handlerIDs = Object.keys(messageReplyHandlers)
+  log(`[ui:onmessage:${msg.type}]`)
+  log(handlerIDs)
+  log(msg.id)
+  if (handlerIDs.indexOf(msg.id) !== -1) {
+    log(`[ui:handler:${msg.id}] running`)
+    messageReplyHandlers[msg.id](msg)
+    return
+  }
+
+
+  // New function for writing entire website at one go, instead of page/page
+  if (event.data.pluginMessage.type === 'update-website') {
+    const {website_id, name, pages, startpage} = event.data.pluginMessage
+
+    // First website
+    const page_json_strs = pages.map(p => p.page)
+    log('update-website')
+    console.log(event.data.pluginMessage)
+
+    addProgressTotal()
+    $noticeResource.innerText = 'Uploading pages'
+    const website_res = await call(api_domain + "/websites/" + website_id, {
+      method: "PUT",
+      body: JSON.stringify({name, startpage, pages: page_json_strs})
+    }, "json")
+
+    if (website_res.isError) {
+      parent.postMessage({pluginMessage: {
+        type: 'notify',
+        message: `Could not upload page! Contact Instant Website Support`
+      }}, '*')
+      resetAll()
+      return
+    }
+
+    addProgressCurrent()
+
+    const pages_with_names = pages.map((page) => {
+      const page_name = JSON.parse(page.page).name
+      return Object.assign({}, page, {page_name})
+    })
+
+    const images = pages_with_names.map(p => {
+      const page_name = p.page_name
+      return p.images.map((i) => {
+        addProgressTotal()
+        return Object.assign({}, i, {page_name})
+      })
+    }).flat()
+
+    const vectors = pages_with_names.map(p => {
+      const page_name = p.page_name
+      return p.vectors.map((i) => {
+        addProgressTotal()
+        return Object.assign({}, i, {page_name})
+      })
+    }).flat()
+
+    // Then upload images
+    $noticeResource.innerText = 'Uploading images'
+    for(const image of images) {
+      if (image.hash && image.bytes) {
+        log('[ui:images:upload]', image.hash, image.bytes.length)
+        const data = new FormData()
+        data.append('image', new Blob([image.bytes], {type: "image/png"}))
+        const url = api_domain + `/image/${website_id}/${image.page_name}/${image.hash}`
+        const res = await call(url, {
+          method: 'POST',
+          body: data
+        }, "text")
+        log(`[ui:image:upload]`, res)
+        if (res.isError) {
+          parent.postMessage({pluginMessage: {
+            type: 'notify',
+            message: 'Could not upload image! Retry with smaller images if possible'
+          }}, '*')
+          resetAll()
+          return
+        }
+        addProgressCurrent()
+      }
+    }
+    // And finally vectors
+    $noticeResource.innerText = 'Uploading vectors'
+    for(const vector of vectors) {
+      if (vector.id && vector.bytes) {
+        log('[ui:vector:upload]', vector.id, vector.bytes.length)
+        const data = new FormData()
+        data.append('vector', new Blob([vector.bytes], {type: "image/svg+xml"}))
+        const url = api_domain + `/vectors/${website_id}/${vector.page_name}/${vector.id}`
+        await call(url,
+                   {method: 'POST',
+                    body: data},
+                    "text")
+        addProgressCurrent()
+      }
+    }
+
+
+    // Duplicated in update-website
+    const url = `${preview_domain}/${website_id}`
+    log('website url is', url)
+    setVisitURL(url)
+    creatingEnd()
+    await updateWebsiteID()
+    return
+  }
+
+  if (event.data.pluginMessage.type === 'selection-change') {
+    const {node_type, is_top_level} = event.data.pluginMessage
+    log('selection changed to', node_type, is_top_level)
+    if (node_type === 'FRAME' && is_top_level) {
+      frameSelected()
+    } else {
+      frameNotSelected()
+    }
+  }
+
+  if (event.data.pluginMessage.type === 'create-website-resource') {
+    const res_id = event.data.pluginMessage.id
+    log(`[ui:create-website-resource:${res_id}] making request`)
+    addProgressTotal()
+
+    const name = event.data.pluginMessage.name
+    const startpage = event.data.pluginMessage.startpage
+    log(`[ui:create-website-resource:${res_id}] got name ${name} and startpage ${startpage}`)
+
+    $noticeResource.innerText = 'Creating website'
+    const website_res = await call(api_domain + "/websites", {
+      method: "POST",
+      body: JSON.stringify({name, startpage})
+    }, "json")
+    log('website_res', website_res)
+    if (website_res.isError) {
+      log('got error when creating website!')
+      addProgressCurrent()
+      return
+    }
+    if (website_res) {
+      log('website_res', website_res)
+      const website_id = website_res["crux.db/id"]
+      log(`[ui:create-website-resource:${res_id}] request done! website_id:`, website_id)
+      // const res = await fetch(api_domain + "/websites",{method: "POST"})
+      // const website_id = await res.text()
+      parent.postMessage({pluginMessage: {type: 'create-website-resource', website_id, id: res_id}}, '*')
+      addProgressCurrent()
+    } else {
+      addProgressCurrent()
+      resetAll()
+      $visit.style.display = 'none'
+    }
+  }
+
+  if (event.data.pluginMessage.type === 'reset-progress') {
+    log('reseting progress')
+    resetAll()
+  }
+
+    // if (event.data.pluginMessage.type === 'add-progress-total') {
+    //   addProgressTotal()
+    // }
+
+  if (event.data.pluginMessage.type === 'create-page-resource') {
+    
+    log('[create-page-resource]')
+    const website_id = event.data.pluginMessage.website_id
+    const page_content = event.data.pluginMessage.page
+    const res_id = event.data.pluginMessage.id
+    const images = event.data.pluginMessage.images
+    const vectors = event.data.pluginMessage.vectors
+    log('[ui:create-page-resource:website_id]', website_id)
+    log('[ui:create-page-resource:page_content]', JSON.parse(page_content))
+    log('[ui:create-page-resource:res_id]', res_id)
+    log('[ui:create-page-resource:images]', images)
+    log('[ui:create-page-resource:vectors]', vectors)
+
+    // Serial Upload
+    for (const image of images) {
+      addProgressTotal()
+    }
+    for (const vector of vectors) {
+      addProgressTotal()
+    }
+    
+    $noticeResource.innerText = 'Creating pages'
+    const page_res = await call(
+      api_domain + "/websites/" + website_id,
+      {method: 'POST',
+       headers: {"Content-Type": "application/json"},
+       body: page_content},
+      "json"
+    )
+    log('page_res', page_res)
+    if (page_res.isError) {
+      log('got error when creating page!')
+      if (page_res.res.status === 404) {
+        parent.postMessage({pluginMessage: {
+          type: 'notify',
+          message: 'Could not find saved website! Try unlinking before creating again'
+        }}, '*')
+        resetAll()
+      }
+      return
+    }
+    const page_id = page_res["page/id"]
+    log('got this back')
+    log(page_id)
+    const page_name = JSON.parse(page_content).name
+    
+    // Serial Upload
+    $noticeResource.innerText = 'Uploading vectors'
+    for(const vector of vectors) {
+      if (vector.id && vector.bytes) {
+        log('[ui:vector:upload]', vector.id, vector.bytes.length)
+        const data = new FormData()
+        data.append('vector', new Blob([vector.bytes], {type: "image/svg+xml"}))
+        const url = api_domain + `/vectors/${website_id}/${page_name}/${vector.id}`
+        await call(url,
+                   {method: 'POST',
+                    body: data},
+                    "text")
+        addProgressCurrent()
+      }
+    }
+
+    
+    $noticeResource.innerText = 'Uploading images'
+    for(const image of images) {
+      if (image.hash && image.bytes) {
+        log('[ui:images:upload]', image.hash, image.bytes.length)
+        const data = new FormData()
+        data.append('image', new Blob([image.bytes], {type: "image/png"}))
+        const url = api_domain + `/image/${website_id}/${page_name}/${image.hash}`
+        const res = await call(url, {
+          method: 'POST',
+          body: data
+        }, "text")
+        log(`[ui:image:upload]`, res)
+        if (res.isError) {
+          parent.postMessage({pluginMessage: {
+            type: 'notify',
+            message: 'Could not upload image! Retry with smaller images if possible'
+          }}, '*')
+          resetAll()
+          return
+        }
+        addProgressCurrent()
+      }
+    }
+
+    parent.postMessage({pluginMessage: {type: 'create-page-resource', page_id: page_id, id: res_id}}, '*')
+    addProgressCurrent()
+  }
+  if (event.data.pluginMessage.type === 'created-website') {
+    // Duplicated in update-website
+    const website_id = event.data.pluginMessage.website_id
+    const url = `${preview_domain}/${website_id}`
+    log('website url is', url)
+    setVisitURL(url)
+    creatingEnd()
+    await updateWebsiteID()
+  }
+  } catch (error) {
+    log('uncaught error!')
+    log(error)
+    parent.postMessage({pluginMessage: {
+      type: 'notify',
+      message: 'Error from InstantWebsite: ' + error.message
+    }}, '*')
+    resetAll()
+  }
+}
+</script>
