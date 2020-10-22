@@ -8,6 +8,11 @@ if (current_env === "production") {
   log = () => {}
 }
 
+figma.showUI(__html__, {
+  height: 170,
+  width: 250,
+});
+
 const getPropertiesForObject = (node) => {
   const props: any = {}
   const shouldExport = node.visible
@@ -418,9 +423,3 @@ figma.ui.onmessage = async msg => {
     })
   }
 };
-
-figma.showUI(__html__, {
-  height: 170,
-  width: 250,
-});
-
