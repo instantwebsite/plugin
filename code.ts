@@ -198,6 +198,17 @@ figma.ui.onmessage = async msg => {
     return
   }
 
+  if (msg.type === 'select-previous-upload') {
+    const frameID = figma.currentPage.getPluginData('previous-frame')
+    if (frameID && frameID !== "") {
+      // TODO yup, we don't really care about adhering to types here as the problem space
+      // is so small, it doesn't really matter.
+      const nodes: any[] = [figma.getNodeById(frameID)]
+      figma.currentPage.selection = nodes
+      figma.viewport.scrollAndZoomIntoView(nodes)
+    }
+  }
+
   if (msg.type === 'set-parameter') {
     const parameter_value = figma.currentPage.setPluginData('parameter_' + msg.key, JSON.stringify(msg.value))
     return
@@ -227,6 +238,8 @@ figma.ui.onmessage = async msg => {
       })
       return
     }
+
+    figma.currentPage.setPluginData('previous-frame', selectedThing.id)
 
     // @ts-ignore
     // selectedThing.isRootFrame = true

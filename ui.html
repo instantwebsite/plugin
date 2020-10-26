@@ -445,6 +445,8 @@ async function init() {
     $api_key_input.style.display = 'none'
   }
 
+  await postAndWaitForReply('select-previous-upload')
+
   updateWebsiteID()
 
   $checkAuthenticated.checked = checkAuthenticated
