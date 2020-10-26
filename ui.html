@@ -168,7 +168,10 @@ if (current_env === "production") {
   <label class="section-title" for="api-key">Authentication</label>
   <div class="switch" title="You only need an API key to associate created websites with your Instant Website account. If you don't have any account, you can skip this. It's not required to create website.">
     <input class="switch__toggle" type="checkbox" id="checkAuthenticated">
-    <label class="switch__label" for="checkAuthenticated">Use API Key</label>
+    <label class="switch__label" for="checkAuthenticated">
+      Use API Key
+      <span style="color: #999; margin-left: 5px;">(not required)</span>
+    </label>
   </div>
   <div class="input" id="api-key-input">
     <input type="input" id="api-key" class="input__field" placeholder="Enter API Key here (32 characters)">
@@ -264,6 +267,14 @@ const toggleMenu = () => {
   }
 }
 
+document.addEventListener('click', (e) => {
+  if (isMenuOpen &&
+      (e.target !== $menuList &&
+       e.target !== $toggleMenuIcon)) {
+    toggleMenu()
+  }
+})
+
 $toggleMenu.addEventListener('click', (e) => {
   e.preventDefault()
   toggleMenu()
@@ -318,11 +329,11 @@ const addProgressCurrent = () => {
 const postAndWaitForReply = async (msg_type, content) => {
   const id = (Math.floor(Math.random() * 100) + 1).toString()
   log(`[ui:postAndWaitForReply:${id}:${msg_type}] init`)
-  addProgressTotal()
+  // addProgressTotal()
   return new Promise((resolve) => {
     messageReplyHandlers[id] = (msg) => {
       log(`[ui:postAndWaitForReply:${id}:${msg_type}] handler called`)
-      addProgressCurrent()
+      // addProgressCurrent()
       resolve(msg)
       delete messageReplyHandlers[id]
     }
