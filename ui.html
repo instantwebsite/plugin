@@ -429,6 +429,13 @@ async function updateWebsiteID() {
 
 async function init() {
   log('[init]')
+
+  console.log('checking env, ', current_env)
+  if (current_env === 'dev') {
+    console.log('Im in dev, change colors yo')
+    $toggleMenuIcon.style.backgroundColor = 'yellow'
+  }
+
   frameNotSelected()
   const res = await postAndWaitForReply('load-parameter', {key: "api_key"})
   const api_key = res.value
@@ -450,12 +457,6 @@ async function init() {
   updateWebsiteID()
 
   $checkAuthenticated.checked = checkAuthenticated
-
-  if (current_env === 'dev') {
-    console.log('Im in dev, change colors yo')
-    $toggleMenuIcon.style.backgroundColor = 'yellow'
-  }
-
 }
 
 init()
@@ -509,7 +510,11 @@ const default_api_key = 'f5b0b95c94ebf21af75cdf35af4a31853'
 async function call(url, opts, decode) {
   log($api_key.value || default_api_key)
   api_key_to_use = shouldUseApiKey() ? $api_key.value : default_api_key
-  let defaultHeaders = {"Authorization": "Token " + api_key_to_use}
+  let defaultHeaders = {
+    "Authorization": "Token " + api_key_to_use,
+    "Accept": "application/json",
+    "Content-Type": "application/json"
+  }
   if (opts.headers) {
     opts.headers = Object.assign({}, opts.headers, defaultHeaders)
   }
