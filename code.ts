@@ -68,6 +68,33 @@ const getPropertiesForObject = (node) => {
     props.linking_external = true
     log('Had external links, URL ' + props.linking_to)
   }
+
+  // Check for mixed styles in text objects
+  // Check if fontSize === figma.mixed
+  // Extract the different font sizes
+  // Set as new property on node
+
+  // Text Node with mixed font sizes
+  if (node.type === 'TEXT' && node.fontSize === figma.mixed) {
+    // Set mixed as the fontSize, so we can recognize it as mixed, symbols
+    // don't serialize to JSON well
+    props.fontSize = 'MIXED'
+
+    const len = node.characters.length
+    const fontSizeRanges = {}
+    for (let i = 0; i < len; i++) {
+      const fontSize = node.getRangeFontSize(i, i+1)
+      if (fontSizeRanges[fontSize]) {
+        fontSizeRanges[fontSize] = Object.assign(fontSizeRanges[fontSize], {end: i+1})
+      } else {
+        fontSizeRanges[fontSize] = {start: i}
+      }
+    }
+    // Set `fontSizeRanges` props so we can later get the ranges in the core-api
+    props.fontSizeRanges = fontSizeRanges
+  }
+
+
   return props
 }
 
